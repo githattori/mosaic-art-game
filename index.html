@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>モザイクアート＆マインスイーパー</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>モザイクアート＆マインスイーパー</h1>
+            <div class="game-controls">
+                <button id="newGameBtn">新しいゲーム</button>
+                <button id="checkBtn">チェック</button>
+                <button id="solveBtn">解答表示</button>
+                <select id="difficultySelect">
+                    <option value="easy">簡単 (5x5)</option>
+                    <option value="medium">普通 (10x10)</option>
+                    <option value="hard">難しい (15x15)</option>
+                </select>
+            </div>
+            <div class="game-info">
+                <span>時間: <span id="timer">00:00</span></span>
+                <span>完成度: <span id="progress">0%</span></span>
+            </div>
+        </header>
+        
+        <main>
+            <div class="game-board-container">
+                <div id="gameBoard" class="game-board"></div>
+            </div>
+            
+            <div class="instructions">
+                <h3>遊び方</h3>
+                <ul>
+                    <li>数字は、そのマスと隣接する8マス（上下左右と斜め）に塗りつぶすべきマスの数を示しています</li>
+                    <li>左クリックでマスを塗りつぶします</li>
+                    <li>右クリックでマスにフラグを立てます（メモ用）</li>
+                    <li>すべての正しいマスを塗りつぶすと完成です！</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
