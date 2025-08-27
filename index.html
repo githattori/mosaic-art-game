@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minesweeper</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
+    #board { display: grid; margin: 20px auto; }
+    .cell {
+      width: 32px; height: 32px;
+      border: 1px solid #888;
+      line-height: 32px; font-weight: bold;
+      user-select: none;
+    }
+    .hidden { background: #ccc; }
+    .revealed { background: #eee; }
+    .mine { background: #f66; }
+    .flagged { background: #fc6; }
+  </style>
+</head>
+<body>
+  <h1>Minesweeper</h1>
+  <button id="modeBtn">Flag Mode: Off</button>
+  <div id="status"></div>
+  <div id="board"></div>
+  <script>
+    const size = 10;
+    const mines = 10;
+    const boardElem = document.getElementById('board');
+    const statusElem = document.getElementById('status');
+    const modeBtn = document.getElementById('modeBtn');
+    let flagMode = false;
+
+    modeBtn.onclick = () => {
+      flagMode = !flagMode;
+      modeBtn.textContent = `Flag Mode: ${flagMode ? 'On' : 'Off'}`;
+    };
+
+    const cells = [];
+    for (let r = 0; r < size; r++) {
+      cells[r] = [];
+      for (let c = 0; c < size; c++) {
+        cells[r][c] = { mine: false, adj: 0, revealed: false, flagged: false };
+      }
+    }
+
+    // place mines
+    let placed = 0;
+    while (placed < mines) {
+      const r = Math.floor(Math.random() * size);
+      const c = Math.floor(Math.random() * size);
+      if (!cells[r][c].mine) {
+        cells[r][c].mine = true;
+        placed++;
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < size && nc >= 0 && nc < size) {
+              cells[nr][nc].adj += 1;
+            }
+          }
+        }
+      }
+    }
+
+    boardElem.style.gridTemplateColumns = `repeat(${size}, 32px)`;
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        const div = document.createElement('div');
+        div.className = 'cell hidden';
+        div.addEventListener('click', () => handleCell(r, c));
+        cells[r][c].elem = div;
+        boardElem.appendChild(div);
+      }
+    }
+
+    function handleCell(r, c) {
+      const cell = cells[r][c];
+      if (cell.revealed) return;
+      if (flagMode) {
+        cell.flagged = !cell.flagged;
+        cell.elem.className = `cell hidden ${cell.flagged ? 'flagged' : ''}`;
+        return;
+      }
+      if (cell.flagged) return;
+      reveal(r, c);
+    }
+
+    function reveal(r, c) {
+      const cell = cells[r][c];
+      if (cell.revealed || cell.flagged) return;
+      cell.revealed = true;
+      if (cell.mine) {
+        cell.elem.className = 'cell revealed mine';
+        statusElem.textContent = 'Game Over!';
+        showAll();
+        return;
+      }
+      cell.elem.className = 'cell revealed';
+      if (cell.adj > 0) {
+        cell.elem.textContent = cell.adj;
+      } else {
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let dc = -1; dc <= 1; dc++) {
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < size && nc >= 0 && nc < size) {
+              reveal(nr, nc);
+            }
+          }
+        }
+      }
+      checkWin();
+    }
+
+    function showAll() {
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const cell = cells[r][c];
+          if (cell.mine) {
+            cell.elem.className = 'cell revealed mine';
+          } else if (!cell.revealed) {
+            cell.elem.className = 'cell revealed';
+            if (cell.adj > 0) cell.elem.textContent = cell.adj;
+          }
+        }
+      }
+    }
+
+    function checkWin() {
+      let ok = true;
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const cell = cells[r][c];
+          if (!cell.mine && !cell.revealed) ok = false;
+        }
+      }
+      if (ok) {
+        statusElem.textContent = 'You Win!';
+        showAll();
+      }
+    }
+  </script>
+</body>
+</html>
