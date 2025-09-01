@@ -63,3 +63,18 @@ python minesweeper.py [rows] [cols] [mines]
 ```bash
 pytest
 ```
+
+## Fill-a-Pix
+
+マスに書かれた数字は、そのマスを中心とした 3x3 の範囲に塗りつぶすべきマスがいくつあるかを示します。数字の指示通りにマスを塗りつぶして絵を完成させるパズルです。サンプル実装として `fill_a_pix.py` を同梱しています。
+
+### 遊び方
+
+```bash
+python fill_a_pix.py
+```
+
+コマンドは以下の通りです。
+
+- `f row col` : 指定マスを塗りつぶす
+- `x row col` : 指定マスに×を付ける（塗らないことを示す）
