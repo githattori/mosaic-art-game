@@ -20,3 +20,10 @@ def test_is_solved():
     # Introduce an incorrect fill
     board.mark_filled(0, 0)
     assert not board.is_solved()
+
+
+def test_random_board_seed():
+    b1 = FillAPix.random(3, 4, density=0.3, seed=42)
+    b2 = FillAPix.random(3, 4, density=0.3, seed=42)
+    assert b1.solution == b2.solution
+    assert b1.rows == 3 and b1.cols == 4

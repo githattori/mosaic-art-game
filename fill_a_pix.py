@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+import random
 from typing import List, Optional
 
 
 class FillAPix:
-    """Simple Fill-a-Pix puzzle board."""
+    """Simple Fill-a-Pix puzzle board.
+
+    The board keeps track of the solution picture, the player's marks, and the
+    numerical clues derived from the solution.  Future extensions (e.g. puzzle
+    generation with unique solutions or different clue shapes) can build on
+    this minimal state container.
+    """
 
     def __init__(self, solution: List[List[int]]) -> None:
         self.solution = solution
@@ -14,6 +21,34 @@ class FillAPix:
             [None for _ in range(self.cols)] for _ in range(self.rows)
         ]
         self.clues = self._compute_clues()
+
+    @classmethod
+    def random(
+        cls,
+        rows: int,
+        cols: int,
+        density: float = 0.5,
+        seed: Optional[int] = None,
+    ) -> "FillAPix":
+        """Generate a random puzzle.
+
+        Parameters
+        ----------
+        rows, cols:
+            Size of the board.
+        density:
+            Approximate ratio of filled cells.  Kept as a parameter so future
+            algorithms can tune picture complexity.
+        seed:
+            Optional seed for reproducibility which also makes it testable.
+        """
+
+        rng = random.Random(seed)
+        solution = [
+            [1 if rng.random() < density else 0 for _ in range(cols)]
+            for _ in range(rows)
+        ]
+        return cls(solution)
 
     def _compute_clues(self) -> List[List[int]]:
         clues = [[0 for _ in range(self.cols)] for _ in range(self.rows)]
@@ -71,7 +106,23 @@ def sample_solution() -> List[List[int]]:
 
 
 def main() -> None:
-    board = FillAPix(sample_solution())
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Play Fill-a-Pix")
+    parser.add_argument("rows", type=int, nargs="?", default=5, help="board height")
+    parser.add_argument("cols", type=int, nargs="?", default=5, help="board width")
+    parser.add_argument(
+        "--density",
+        type=float,
+        default=0.5,
+        help="approximate ratio of filled cells",
+    )
+    parser.add_argument(
+        "--seed", type=int, default=None, help="random seed for reproducibility"
+    )
+    args = parser.parse_args()
+
+    board = FillAPix.random(args.rows, args.cols, density=args.density, seed=args.seed)
     while True:
         board.display()
         if board.is_solved():
