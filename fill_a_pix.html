@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fill-a-Pix</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 0; }
+    #board { display: grid; margin: 20px auto; }
+    .cell {
+      width: 32px; height: 32px;
+      border: 1px solid #888;
+      line-height: 32px; font-weight: bold;
+      user-select: none;
+    }
+    .filled { background: #333; color: #fff; }
+    .empty { color: #aaa; }
+  </style>
+</head>
+<body>
+  <h1>Fill-a-Pix</h1>
+  <div>
+    <label>Rows: <input type="number" id="rows" value="10" min="5" max="30"></label>
+    <label>Cols: <input type="number" id="cols" value="10" min="5" max="30"></label>
+    <label>Density: <input type="number" id="density" value="0.5" min="0.1" max="0.9" step="0.1"></label>
+    <button id="startBtn">Start</button>
+  </div>
+  <div id="status"></div>
+  <div id="board"></div>
+  <script>
+    const rowsInput = document.getElementById('rows');
+    const colsInput = document.getElementById('cols');
+    const densityInput = document.getElementById('density');
+    const startBtn = document.getElementById('startBtn');
+    const statusElem = document.getElementById('status');
+    const boardElem = document.getElementById('board');
+
+    let rows = 0, cols = 0, density = 0.5;
+    let solution = [], player = [], clues = [];
+
+    startBtn.onclick = () => {
+      rows = parseInt(rowsInput.value, 10);
+      cols = parseInt(colsInput.value, 10);
+      density = parseFloat(densityInput.value);
+      startGame();
+    };
+
+    function startGame() {
+      statusElem.textContent = '';
+      boardElem.innerHTML = '';
+      boardElem.style.gridTemplateColumns = `repeat(${cols}, 32px)`;
+
+      solution = Array.from({ length: rows }, () =>
+        Array.from({ length: cols }, () => Math.random() < density ? 1 : 0)
+      );
+      player = Array.from({ length: rows }, () =>
+        Array.from({ length: cols }, () => 0)
+      );
+      clues = computeClues();
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const div = document.createElement('div');
+          div.className = 'cell';
+          div.textContent = clues[r][c];
+          div.addEventListener('click', () => handleCell(r, c));
+          boardElem.appendChild(div);
+        }
+      }
+    }
+
+    function computeClues() {
+      const arr = Array.from({ length: rows }, () => Array(cols).fill(0));
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          let count = 0;
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              const nr = r + dr, nc = c + dc;
+              if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+                if (solution[nr][nc]) count++;
+              }
+            }
+          }
+          arr[r][c] = count;
+        }
+      }
+      return arr;
+    }
+
+    function handleCell(r, c) {
+      const idx = r * cols + c;
+      const cell = boardElem.children[idx];
+      const state = player[r][c];
+      if (state === 0) {
+        player[r][c] = 1; // filled
+        cell.className = 'cell filled';
+        cell.textContent = '';
+      } else if (state === 1) {
+        player[r][c] = -1; // empty
+        cell.className = 'cell empty';
+        cell.textContent = 'X';
+      } else {
+        player[r][c] = 0; // reset
+        cell.className = 'cell';
+        cell.textContent = clues[r][c];
+      }
+      checkSolved();
+    }
+
+    function checkSolved() {
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (player[r][c] === 1 && solution[r][c] !== 1) return;
+          if (player[r][c] !== 1 && solution[r][c] === 1) return;
+        }
+      }
+      statusElem.textContent = 'Puzzle solved!';
+    }
+  </script>
+</body>
+</html>
