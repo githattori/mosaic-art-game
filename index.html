@@ -24,61 +24,61 @@
   <div>
     <label>Rows: <input type="number" id="rows" value="10" min="5" max="30"></label>
     <label>Cols: <input type="number" id="cols" value="10" min="5" max="30"></label>
-    <button id="startBtn">Start</button>
-    <button id="modeBtn" disabled>Flag Mode: Off</button>
+    <button id="startBtn" type="button">Start</button>
+    <button id="modeBtn" type="button" disabled>Flag Mode: Off</button>
   </div>
   <div id="status"></div>
   <div id="board"></div>
   <script>
-    const rowsInput = document.getElementById('rows');
-    const colsInput = document.getElementById('cols');
-    const startBtn = document.getElementById('startBtn');
-    const modeBtn = document.getElementById('modeBtn');
-    const statusElem = document.getElementById('status');
-    const boardElem = document.getElementById('board');
+    var rowsInput = document.getElementById('rows');
+    var colsInput = document.getElementById('cols');
+    var startBtn = document.getElementById('startBtn');
+    var modeBtn = document.getElementById('modeBtn');
+    var statusElem = document.getElementById('status');
+    var boardElem = document.getElementById('board');
 
-    let rows = 0, cols = 0, mines = 0;
-    let cells = [];
-    let flagMode = false;
+    var rows = 0, cols = 0, mines = 0;
+    var cells = [];
+    var flagMode = false;
 
-    startBtn.onclick = () => {
-      rows = parseInt(rowsInput.value, 10);
-      cols = parseInt(colsInput.value, 10);
+    startBtn.addEventListener('click', function () {
+      rows = parseInt(rowsInput.value, 10) || 10;
+      cols = parseInt(colsInput.value, 10) || 10;
       mines = Math.floor(rows * cols * 0.15);
       startGame();
-    };
+    });
 
-    modeBtn.onclick = () => {
+    modeBtn.addEventListener('click', function () {
       flagMode = !flagMode;
-      modeBtn.textContent = `Flag Mode: ${flagMode ? 'On' : 'Off'}`;
-    };
+      modeBtn.textContent = 'Flag Mode: ' + (flagMode ? 'On' : 'Off');
+    });
 
     function startGame() {
       flagMode = false;
       modeBtn.textContent = 'Flag Mode: Off';
       modeBtn.disabled = false;
-      statusElem.textContent = `Mines: ${mines}`;
+      statusElem.textContent = 'Mines: ' + mines;
       boardElem.innerHTML = '';
 
-      cells = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () => ({
-          mine: false,
-          adj: 0,
-          revealed: false,
-          flagged: false
-        }))
-      );
+      cells = [];
+      for (var r = 0; r < rows; r++) {
+        var row = [];
+        for (var c = 0; c < cols; c++) {
+          row.push({ mine: false, adj: 0, revealed: false, flagged: false });
+        }
+        cells.push(row);
+      }
 
-      let placed = 0;
+      var placed = 0;
       while (placed < mines) {
-        const r = Math.floor(Math.random() * rows);
-        const c = Math.floor(Math.random() * cols);
-        if (!cells[r][c].mine) {
-          cells[r][c].mine = true;
+        var rr = Math.floor(Math.random() * rows);
+        var cc = Math.floor(Math.random() * cols);
+        if (!cells[rr][cc].mine) {
+          cells[rr][cc].mine = true;
           placed++;
-          for (let dr = -1; dr <= 1; dr++) {
-            for (let dc = -1; dc <= 1; dc++) {
-              const nr = r + dr, nc = c + dc;
+          for (var dr = -1; dr <= 1; dr++) {
+            for (var dc = -1; dc <= 1; dc++) {
+              var nr = rr + dr, nc = cc + dc;
               if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
                 cells[nr][nc].adj += 1;
               }
@@ -87,24 +87,26 @@
         }
       }
 
-      boardElem.style.gridTemplateColumns = `repeat(${cols}, 32px)`;
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const div = document.createElement('div');
+      boardElem.style.gridTemplateColumns = 'repeat(' + cols + ', 32px)';
+      for (var r2 = 0; r2 < rows; r2++) {
+        for (var c2 = 0; c2 < cols; c2++) {
+          var div = document.createElement('div');
           div.className = 'cell hidden';
-          div.addEventListener('click', () => handleCell(r, c));
-          cells[r][c].elem = div;
+          (function (rr2, cc2) {
+            div.addEventListener('click', function () { handleCell(rr2, cc2); });
+          })(r2, c2);
+          cells[r2][c2].elem = div;
           boardElem.appendChild(div);
         }
       }
     }
 
     function handleCell(r, c) {
-      const cell = cells[r][c];
+      var cell = cells[r][c];
       if (cell.revealed) return;
       if (flagMode) {
         cell.flagged = !cell.flagged;
-        cell.elem.className = `cell hidden ${cell.flagged ? 'flagged' : ''}`;
+        cell.elem.className = 'cell hidden ' + (cell.flagged ? 'flagged' : '');
         return;
       }
       if (cell.flagged) return;
@@ -112,7 +114,7 @@
     }
 
     function reveal(r, c) {
-      const cell = cells[r][c];
+      var cell = cells[r][c];
       if (cell.revealed || cell.flagged) return;
       cell.revealed = true;
       if (cell.mine) {
@@ -125,9 +127,9 @@
       if (cell.adj > 0) {
         cell.elem.textContent = cell.adj;
       } else {
-        for (let dr = -1; dr <= 1; dr++) {
-          for (let dc = -1; dc <= 1; dc++) {
-            const nr = r + dr, nc = c + dc;
+        for (var dr = -1; dr <= 1; dr++) {
+          for (var dc = -1; dc <= 1; dc++) {
+            var nr = r + dr, nc = c + dc;
             if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
               reveal(nr, nc);
             }
@@ -138,9 +140,9 @@
     }
 
     function showAll() {
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const cell = cells[r][c];
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var cell = cells[r][c];
           if (cell.mine) {
             cell.elem.className = 'cell revealed mine';
           } else if (!cell.revealed) {
@@ -152,10 +154,10 @@
     }
 
     function checkWin() {
-      let ok = true;
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const cell = cells[r][c];
+      var ok = true;
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) {
+          var cell = cells[r][c];
           if (!cell.mine && !cell.revealed) ok = false;
         }
       }
