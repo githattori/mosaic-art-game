@@ -14,7 +14,6 @@
       user-select: none;
     }
     .filled { background: #333; color: #fff; }
-    .empty { color: #aaa; }
   </style>
 </head>
 <body>
@@ -91,15 +90,10 @@
     function handleCell(r, c) {
       const idx = r * cols + c;
       const cell = boardElem.children[idx];
-      const state = player[r][c];
-      if (state === 0) {
+      if (player[r][c] === 0) {
         player[r][c] = 1; // filled
         cell.className = 'cell filled';
         cell.textContent = '';
-      } else if (state === 1) {
-        player[r][c] = -1; // empty
-        cell.className = 'cell empty';
-        cell.textContent = 'X';
       } else {
         player[r][c] = 0; // reset
         cell.className = 'cell';
