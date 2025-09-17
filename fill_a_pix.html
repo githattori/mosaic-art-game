@@ -10,11 +10,27 @@
     .cell {
       width: 32px; height: 32px;
       border: 1px solid #888;
-      line-height: 32px; font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      position: relative;
       user-select: none;
     }
     .filled { background: #333; color: #fff; }
-    .marked { background: #fff; color: #c00; }
+    .marked { background: #fff; color: #333; }
+    .marked::after {
+      content: '\00d7';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #c00;
+      font-size: 24px;
+      opacity: 0.7;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -113,7 +129,7 @@
       } else if (player[r][c] === 1) {
         player[r][c] = 2;
         cell.className = 'cell marked';
-        cell.textContent = '×';
+        cell.textContent = clues[r][c];
       } else {
         player[r][c] = 0;
         cell.className = 'cell';
