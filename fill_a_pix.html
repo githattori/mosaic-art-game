@@ -14,6 +14,7 @@
       user-select: none;
     }
     .filled { background: #333; color: #fff; }
+    .marked { background: #fff; color: #c00; }
   </style>
 </head>
 <body>
@@ -108,7 +109,11 @@
       if (player[r][c] === 0) {
         player[r][c] = 1;
         cell.className = 'cell filled';
-        cell.textContent = '';
+        cell.textContent = clues[r][c];
+      } else if (player[r][c] === 1) {
+        player[r][c] = 2;
+        cell.className = 'cell marked';
+        cell.textContent = '×';
       } else {
         player[r][c] = 0;
         cell.className = 'cell';
